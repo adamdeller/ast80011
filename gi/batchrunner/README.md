@@ -1,4 +1,6 @@
 # GI Simulator Batch runner
+NOTE: This has so far been tested only under Linux! Windows and Mac users will need to adapt these instructions as appropriate.
+
 To get started, you will need co create a virtual environment called .venv, like so:
 'python3 -m venv .venv'
 (or alternatively 'python -m venv .venv' , depending on your system.
