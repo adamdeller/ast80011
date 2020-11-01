@@ -88,32 +88,16 @@ def run_job_scheduler(scheduler_fn):
 
     job_scheduler = sched.scheduler()
 
-    last_run_time = time.monotonic()
-
     def job_scheduler_loop():
-        nonlocal last_run_time
-        # Calculate the time the loop function should next run.
-        current_time = time.monotonic()
-        last_run_delta = current_time - last_run_time
-        last_run_time = current_time
-        next_run_delta = TASK_STATUS_POLL_INTERVAL * 2.0 - last_run_delta
-
-        if next_run_delta <= 0.0:
-            next_run_delta = 0.1
-
-        # Re-schedule the loop to run after next_run_delta seconds
-        job_scheduler.enter(next_run_delta, 1, job_scheduler_loop)
-
         # Run the job loop function.
         if not scheduler_fn():
             return False
 
-    # First-run of the job loop function.
-    if not scheduler_fn():
-        return False
+        # Re-schedule the loop to run after next_run_delta seconds
+        job_scheduler.enter(TASK_STATUS_POLL_INTERVAL, 1, job_scheduler_loop)
 
     # Set up the scheduler loop.
-    job_scheduler.enter(TASK_STATUS_POLL_INTERVAL, 1, job_scheduler_loop)
+    job_scheduler.enter(0, 1, job_scheduler_loop)
     job_scheduler.run()
 
 
