@@ -157,9 +157,9 @@ def generate_jobs():
         velocity_galaxy_2_y = galaxy2_speed * \
             math.sin(math.radians(vertical_velocity_angle)) * math.sin(math.radians(horizontal_velocity_angle))
         velocity_galaxy_2_z = galaxy2_speed * math.cos(math.radians(vertical_velocity_angle))
-        merge["velocity_galaxy_2"]["x"] = velocity_galaxy_2_x
-        merge["velocity_galaxy_2"]["y"] = velocity_galaxy_2_y
-        merge["velocity_galaxy_2"]["z"] = velocity_galaxy_2_z
+        merge["velocity_galaxy_2"]["vx"] = velocity_galaxy_2_x
+        merge["velocity_galaxy_2"]["vy"] = velocity_galaxy_2_y
+        merge["velocity_galaxy_2"]["vz"] = velocity_galaxy_2_z
 
         # Create the output subfolder directory.
         job_dir = os.path.join(JOBS_PATH, str(job_number))
