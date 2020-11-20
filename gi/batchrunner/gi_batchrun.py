@@ -239,7 +239,6 @@ def run_job(requests_session, standard_headers, job_status, model_number):
     # Merge Galaxies
     merge_params = read_json_file(os.path.join(job_status.job_dir.path, 'merge.json'))
     merge_params['model_number'] = model_number
-    #merge_params['model_numbers'][0] = str(model_number)
     check_rerun_model(merge_params, JOB_TYPE_MERGE, job_status)
     job_status.params_dicts[JOB_TYPE_MERGE] = merge_params
     if job_status.rerun_jobs:
@@ -272,7 +271,7 @@ def run_job(requests_session, standard_headers, job_status, model_number):
             # No more plots to do.
             break
         plot_params['model_number'] = model_number
-        job_type_num = f'{JOB_TYPE_PLOT}{plot_num}'
+        job_type_num = f'{JOB_TYPE_PLOT} {plot_num}'
         check_rerun_model(plot_params, job_type_num, job_status)
         job_status.params_dicts[job_type_num] = plot_params
         if job_status.rerun_jobs:
@@ -310,7 +309,6 @@ def download_files(requests_session, standard_headers, files_list, output_dir, s
 def job_scheduler_fn(app_state):
     # Checks job state and schedules running next job step or the next job directory.
     tasks_status = get_tasks_status(app_state.requests_session, app_state.standard_headers)
-    num_idle_jobs = 0
     for i in app_state.use_models:
         if ((i in tasks_status.keys()) and (tasks_status[i] == JOB_STATUS_COMPLETED)) or (i not in tasks_status.keys()):
             if i not in app_state.all_jobs_state.keys():
@@ -339,31 +337,46 @@ def job_scheduler_fn(app_state):
                             'output'))
 
             if job_state.job_type is None:
-                # Starting a new job.
-                try:
-                    # Get the next job directory.
-                    while True:
-                        job_state.job_dir = next(app_state.jobs_iterator)
-                        if not os.path.isdir(os.path.join(job_state.job_dir.path, 'output')):
-                            # No results exist for this job. Start it.
-                            break
-
-                        # Results have already been downloaded for this job. Skip it.
-                        print(f'Job {job_state.job_dir.path} already has results. Skipping...')
-                        job_state.job_dir = None
-                except StopIteration:
-                    # No more jobs to do.
+                def set_job_idle():
+                    # Mark this job/model as idle (when there are no more job directories to process).
                     job_state.job_dir = None
-                    num_idle_jobs += 1
-                    continue
+                    job_state.idle = True
+                    app_state.num_idle_models += 1
 
-                print(f'Starting job {job_state.job_dir.path}')
-                job_state.job_step_iter = run_job(app_state.requests_session, app_state.standard_headers, job_state, i)
-                job_state.job_type = next(job_state.job_step_iter)
-        else:
-            print(f"Model number {i} is waiting for a job to complete... (current task status is: {tasks_status[i]})")
+                if app_state.num_idle_models == 0:
+                    # Starting a new job.
+                    try:
+                        # Get the next job directory.
+                        while True:
+                            job_state.job_dir = next(app_state.jobs_iterator)
+                            if not os.path.isdir(os.path.join(job_state.job_dir.path, 'output')):
+                                # No results exist for this job. Start it.
+                                break
 
-    if num_idle_jobs >= len(app_state.use_models):
+                            # Results have already been downloaded for this job. Skip it.
+                            print(f'Job {job_state.job_dir.path} already has results. Skipping...')
+                            job_state.job_dir = None
+                    except StopIteration:
+                        # No more jobs to do.
+                        set_job_idle()
+                        continue
+
+                    print(f'Starting job {job_state.job_dir.path}')
+                    job_state.job_step_iter = run_job(
+                        app_state.requests_session, app_state.standard_headers, job_state, i)
+                    job_state.job_type = next(job_state.job_step_iter)
+                elif not job_state.idle:
+                    # We have a non-zero idle model count, so there are no more job
+                    # directories to read. Set this job/model as idle too.
+                    set_job_idle()
+        elif i in app_state.all_jobs_state.keys():
+            print(
+                f'Model number {i} is waiting for a \"{app_state.all_jobs_state[i].job_type}\" task to complete... (current task status is: {tasks_status[i]})')
+        elif app_state.num_idle_models == 0:
+            print(
+                f'Model number {i} is waiting for a task from a previous session to complete... (current task status is: {tasks_status[i]})')
+
+    if app_state.num_idle_models > 0 and app_state.num_idle_models >= len(app_state.all_jobs_state.keys()):
         return False  # All jobs completed. Exit the application.
 
     return True
@@ -377,6 +390,7 @@ class AppState:
         self.password = None
         self.all_jobs_state = {}
         self.jobs_iterator = None
+        self.num_idle_models = False
         self.use_models = None
 
 
@@ -385,6 +399,7 @@ class JobState:
         self.job_type = None
         self.job_dir = None
         self.job_step_iter = None
+        self.idle = False
         self.params_dicts = {}
 
 
