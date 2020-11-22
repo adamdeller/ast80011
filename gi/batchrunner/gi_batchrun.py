@@ -218,10 +218,10 @@ def run_job(requests_session, standard_headers, job_status, model_number):
     if job_status.rerun_jobs:
         post_model(requests_session, standard_headers, os.path.join(SITE_URL, 'gi/galactic'), galaxy_1_params)
         print(f'Submitted {JOB_TYPE_GALAXY1} task for {job_status.job_dir.path} as model number {model_number}')
+        yield JOB_TYPE_GALAXY1
     else:
         print(
             f'Skipped re-running {JOB_TYPE_GALAXY1} task for {job_status.job_dir.path} as model number {model_number}')
-    yield JOB_TYPE_GALAXY1
 
     # Galaxy 2
     galaxy_2_params = read_json_file(os.path.join(job_status.job_dir.path, 'galaxy2.json'))
@@ -231,10 +231,10 @@ def run_job(requests_session, standard_headers, job_status, model_number):
     if job_status.rerun_jobs:
         post_model(requests_session, standard_headers, os.path.join(SITE_URL, 'gi/galactic'), galaxy_2_params)
         print(f'Submitted {JOB_TYPE_GALAXY2} task for {job_status.job_dir.path} as model number {model_number}')
+        yield JOB_TYPE_GALAXY2
     else:
         print(
             f'Skipped re-running {JOB_TYPE_GALAXY2} task for {job_status.job_dir.path} as model number {model_number}')
-    yield JOB_TYPE_GALAXY2
 
     # Merge Galaxies
     merge_params = read_json_file(os.path.join(job_status.job_dir.path, 'merge.json'))
@@ -244,9 +244,9 @@ def run_job(requests_session, standard_headers, job_status, model_number):
     if job_status.rerun_jobs:
         post_model(requests_session, standard_headers, os.path.join(SITE_URL, 'gi/galacticsmerge'), merge_params)
         print(f'Submitted {JOB_TYPE_MERGE} task for {job_status.job_dir.path} as model number {model_number}')
+        yield JOB_TYPE_MERGE
     else:
         print(f'Skipped re-running {JOB_TYPE_MERGE} task for {job_status.job_dir.path} as model number {model_number}')
-    yield JOB_TYPE_MERGE
 
     # Interact Galaxies
     interact_params = read_json_file(os.path.join(job_status.job_dir.path, 'interact.json'))
@@ -256,10 +256,10 @@ def run_job(requests_session, standard_headers, job_status, model_number):
     if job_status.rerun_jobs:
         post_model(requests_session, standard_headers, os.path.join(SITE_URL, 'gi/interactgalaxies'), interact_params)
         print(f'Submitted {JOB_TYPE_INTERACT} task for {job_status.job_dir.path} as model number {model_number}')
+        yield JOB_TYPE_INTERACT
     else:
         print(
             f'Skipped re-running {JOB_TYPE_INTERACT} task for {job_status.job_dir.path} as model number {model_number}')
-    yield JOB_TYPE_INTERACT
 
     # Plot Galaxies
     plot_num = 1
@@ -277,10 +277,10 @@ def run_job(requests_session, standard_headers, job_status, model_number):
         if job_status.rerun_jobs:
             post_model(requests_session, standard_headers, os.path.join(SITE_URL, 'gi/plotgalaxies'), plot_params)
             print(f'Submitted {job_type_num} task for {job_status.job_dir.path} as model number {model_number}')
+            yield job_type_num
         else:
             print(
                 f'Skipped re-running {job_type_num} task for {job_status.job_dir.path} as model number {model_number}')
-        yield job_type_num
         # Increment plot_num and keep running until we don't find a matching json params file.
         plot_num += 1
 
