@@ -124,7 +124,7 @@ def generate_jobs():
     }
 
     # Path to output all the job subfolders to.
-    JOBS_PATH = './Jobs'
+    JOBS_PATH = './examplejobs'
 
     # Keep track of the output job number.
     job_number = 1
@@ -139,10 +139,10 @@ def generate_jobs():
     while vertical_pos_angle <= 90:
         # Calculate the position vector for Galaxy 2
         pos_galaxy_2_x = galaxy2_distance * \
-            math.sin(math.radians(vertical_pos_angle)) * math.cos(math.radians(horizontal_pos_angle))
+            math.cos(math.radians(vertical_pos_angle)) * math.cos(math.radians(horizontal_pos_angle))
         pos_galaxy_2_y = galaxy2_distance * \
-            math.sin(math.radians(vertical_pos_angle)) * math.sin(math.radians(horizontal_pos_angle))
-        pos_galaxy_2_z = galaxy2_distance * math.cos(math.radians(vertical_pos_angle))
+            math.cos(math.radians(vertical_pos_angle)) * math.sin(math.radians(horizontal_pos_angle))
+        pos_galaxy_2_z = galaxy2_distance * math.sin(math.radians(vertical_pos_angle))
         merge["position_galaxy_2"]["x"] = pos_galaxy_2_x
         merge["position_galaxy_2"]["y"] = pos_galaxy_2_y
         merge["position_galaxy_2"]["z"] = pos_galaxy_2_z
@@ -153,10 +153,10 @@ def generate_jobs():
         vertical_velocity_angle = vertical_pos_angle + 180
 
         velocity_galaxy_2_x = galaxy2_speed * \
-            math.sin(math.radians(vertical_velocity_angle)) * math.cos(math.radians(horizontal_velocity_angle))
+            math.cos(math.radians(vertical_velocity_angle)) * math.cos(math.radians(horizontal_velocity_angle))
         velocity_galaxy_2_y = galaxy2_speed * \
-            math.sin(math.radians(vertical_velocity_angle)) * math.sin(math.radians(horizontal_velocity_angle))
-        velocity_galaxy_2_z = galaxy2_speed * math.cos(math.radians(vertical_velocity_angle))
+            math.cos(math.radians(vertical_velocity_angle)) * math.sin(math.radians(horizontal_velocity_angle))
+        velocity_galaxy_2_z = galaxy2_speed * math.sin(math.radians(vertical_velocity_angle))
         merge["velocity_galaxy_2"]["vx"] = velocity_galaxy_2_x
         merge["velocity_galaxy_2"]["vy"] = velocity_galaxy_2_y
         merge["velocity_galaxy_2"]["vz"] = velocity_galaxy_2_z
