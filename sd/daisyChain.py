@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pandas as pd
 import argparse, os
-import json
+import json, math
 from pandas import read_csv
 
 # Run if desired
@@ -17,11 +17,11 @@ if __name__ == "__main__":
 
     # Check that the to-be-translated csv file exists
     if not os.path.exists(args.outputcsv):
-        parser.error(args.outputcsv, "doesn't exist")
+        parser.error(args.outputcsv + " doesn't exist")
 
     # Check that the json file from the simulation to be continued exists
     if not os.path.exists(args.previousjson):
-        parser.error(args.previousjson, "doesn't exist")
+        parser.error(args.previousjson + " doesn't exist")
 
     # Parse the json file
     with open(args.previousjson) as jsonin:
@@ -66,13 +66,17 @@ if __name__ == "__main__":
     tpcols = ["e","a","inc[degrees]","x[AU]","y[AU]","z[AU]","vx[AU/year]","vy[AU/year]","vz[AU/year]"]
     tpdf = tpdf[tpcols]
 
-    # Scale all the velocities by central_mass / (central_mass + planet mass sum)
-    # Not sure why this is needed, but it must be a conversion on the input to SWIFT.  Needed to make things match!
-    # Currently, the velocities still don't match exactly.  Investigations continue.
+    # Scale all the velocities by default_central_mass / (central_mass + planet mass sum), plus a small fudge factor
+    # Needed to convert from AU/yr into SWIFT velocity units (although I don't understand the small fudge factor)
     velocitycolumns = ["vx[AU/year]","vy[AU/year]","vz[AU/year]"]
+    default_central_mass = 1047 # Jupiter masses
+    fudge_factor = 1.00115091
+    for index, row in pldf.iterrows():
+        for v in velocitycolumns:
+            row[v] /= fudge_factor * math.sqrt(default_central_mass / (params['cent_mass']  + row['mass']))
     for v in velocitycolumns:
-        pldf[v] *= params['cent_mass'] / (params['cent_mass'] + masssum)
-        tpdf[v] *= params['cent_mass'] / (params['cent_mass'] + masssum)
+        #pldf[v] = pldf[v] / (fudge_factor * math.sqrt(default_central_mass / (params['cent_mass']  + pldf['mass'])))
+        tpdf[v] = tpdf[v] / (fudge_factor * math.sqrt(default_central_mass / params['cent_mass']))
 
     # Write out the two csv files
     pldf.to_csv(args.newplcsv, header=False, index=False)
