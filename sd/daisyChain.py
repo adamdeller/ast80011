@@ -53,8 +53,8 @@ if __name__ == "__main__":
         # Double check that the index of this planet matches expectations
         if not p['index'] == i:
             raise Exception("Planet index",  p['index'], " of the ", i, "th planet in the json file doesn't match expectations! Aborting.")
-    print(pldf)
-    print(masses)
+    #print(pldf)
+    #print(masses)
     pldf['mass'] = masses
     pldf['closeradii'] = closeradii
     
@@ -78,9 +78,12 @@ if __name__ == "__main__":
         #pldf[v] = pldf[v] / (fudge_factor * math.sqrt(default_central_mass / (params['cent_mass']  + pldf['mass'])))
         tpdf[v] = tpdf[v] / (fudge_factor * math.sqrt(default_central_mass / params['cent_mass']))
 
+    # Filter out any test particles that were lost
+    livetpdf = tpdf.loc[(tpdf[velocitycolumns]!=0).any(axis=1)]
+
     # Write out the two csv files
     pldf.to_csv(args.newplcsv, header=False, index=False)
-    tpdf.to_csv(args.newtpcsv, header=False, index=False)
+    livetpdf.to_csv(args.newtpcsv, header=False, index=False)
 
     # Also write out a whole new params.json file ready to go
     for i, p in enumerate(params['planets']):
@@ -93,15 +96,33 @@ if __name__ == "__main__":
         p['vx'] = pldf.iloc[i]["vx[AU/year]"]
         p['vy'] = pldf.iloc[i]["vy[AU/year]"]
         p['vz'] = pldf.iloc[i]["vz[AU/year]"]
-    for i, t in enumerate(params['particles']):
-        t['ecc'] = tpdf.iloc[i]["e"]
-        t['sma'] = tpdf.iloc[i]["a"]
-        t['inc'] = tpdf.iloc[i]["inc[degrees]"]
-        t['x'] = tpdf.iloc[i]["x[AU]"]
-        t['y'] = tpdf.iloc[i]["y[AU]"]
-        t['z'] = tpdf.iloc[i]["z[AU]"]
-        t['vx'] = tpdf.iloc[i]["vx[AU/year]"]
-        t['vy'] = tpdf.iloc[i]["vy[AU/year]"]
-        t['vz'] = tpdf.iloc[i]["vz[AU/year]"]
+    # Ensure that the json file now uses fully specified test particle info rather than randomise, 
+    # even if the simulation that is being continued used randomisation initially.
+    params['randomize_particles'] = False
+    params['num_particles'] = livetpdf.shape[0]
+    params['particles'] = []
+    for i in range(params['num_particles']):
+        t = {}
+        t['index'] = i
+        t['ecc'] = livetpdf.iloc[i]["e"]
+        t['sma'] = livetpdf.iloc[i]["a"]
+        t['inc'] = livetpdf.iloc[i]["inc[degrees]"]
+        t['x'] = livetpdf.iloc[i]["x[AU]"]
+        t['y'] = livetpdf.iloc[i]["y[AU]"]
+        t['z'] = livetpdf.iloc[i]["z[AU]"]
+        t['vx'] = livetpdf.iloc[i]["vx[AU/year]"]
+        t['vy'] = livetpdf.iloc[i]["vy[AU/year]"]
+        t['vz'] = livetpdf.iloc[i]["vz[AU/year]"]
+        params['particles'].append(t)
+    #for i, t in enumerate(params['particles']):
+    #    t['ecc'] = tpdf.iloc[i]["e"]
+    #    t['sma'] = tpdf.iloc[i]["a"]
+    #    t['inc'] = tpdf.iloc[i]["inc[degrees]"]
+    #    t['x'] = tpdf.iloc[i]["x[AU]"]
+    #    t['y'] = tpdf.iloc[i]["y[AU]"]
+    #    t['z'] = tpdf.iloc[i]["z[AU]"]
+    #    t['vx'] = tpdf.iloc[i]["vx[AU/year]"]
+    #    t['vy'] = tpdf.iloc[i]["vy[AU/year]"]
+    #    t['vz'] = tpdf.iloc[i]["vz[AU/year]"]
     with open(args.newjson,"w") as jsonout:
         json.dump(params,jsonout)
