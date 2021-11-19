@@ -1,0 +1,142 @@
+#-------------------------------------------------------------------------------
+# Name:         Pretty Scatter Plot
+# Purpose:      Plots periastron (calculated from a and e) vs time for five outer planets,
+#               testparticles, and one Planet9.  Black for test particles, different colours
+#               planets.
+#
+#
+# Requirements: Because matplotlib doesn't work (yet) with Python 3.10 this has to be run with
+#               Python 3.9.  Sigh
+#
+# Parameters:   sys.argv[1]:   string filename of results from Swift Simulator
+#               sys.argv[2]:   string filename of saved image
+#               sys.argv[3]:   int xaxis limit (normally 0)
+#               sys.argv[4]:   int yaxis limit (normally 0)
+#               sys.argv[5]:   string that is placed as a subtitle.
+#
+# Notes:        
+#               
+# Author:       Tim Rattray
+#
+# Created:      10/11/2021
+# Licence:      None. Use at your own risk.
+#-------------------------------------------------------------------------------
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import sys
+import pandas as pd
+
+fontTitle = {'family': 'sans',
+             'color':  'black',
+             'weight': 'bold',
+             'size': 16,
+            }
+            
+fontSubTitle = {'family': 'sans',
+                'color':  'black',
+                'size': 12,
+               }
+
+# Load in the csv data into a pandas dataframe
+pd.set_option('display.max_rows', None)    #when printing a dataframe, print ALL of the lines
+pd.set_option('display.max_columns', None) #when printing a dataframe, print ALL of the lines
+alldata = pd.read_csv(sys.argv[1], skipinitialspace=True, dtype={"time[yr]":np.float64, "type[tp/pl]":"string", "particle no.":int}, index_col=False)
+#  Because some a's have ********** in them, they get read in as strings, and we can't specify them as  float here....  Arrrgghhh!
+#  for future reference, here are the column names
+#  time[yr]	type[tp/pl]	particle no.	x[AU]	y[AU]	z[AU]	vx[AU/year]	vy[AU/year]	vz[AU/year]	a	e	inc[degrees]
+
+
+##### various debugging print statements - this is how you can peek at your data.
+#print(type(alldata[['time[yr]']])) #this prints it all....  takes a very long time. (see display.max_rows)
+#print (alldata.options.display.max_columns)
+#print(alldata.loc[[950]])
+#print(alldata.loc[[1010]])
+#print(alldata.head)
+#print(alldata.count())
+
+
+save_filename = sys.argv[2]
+YLimit = int(sys.argv[3])  #Have to convert it to an integer, otherwise plt.ylim(0,YLimit) has a bad day
+XLimit = int(sys.argv[4])  #ditto but for x
+sup_title = sys.argv[5]    #this is the sub title, under the real title.
+
+
+# Extract just the info corresponding to the last timestep and split into planets and test particles
+testparticles = alldata[alldata['type[tp/pl]']  == 'tp'] #This gets read in as a string because there are *******'s in some rows (e.g. column 'a')
+testparticles = testparticles[(testparticles['a']!="***************")] #drop all the rows with *******'s in column a (Semi-Major Axis)
+#Until I remove the non-numbers (the ********'s) I can't convert the colunm to float.
+#Until they are floats I can't do maths with them.
+testparticles['a'] = testparticles.a.astype(float)     # Yay!  testparticles['a'] is now a column of floats!
+testparticles = testparticles[(testparticles['a']!=0)] # Get rid of all tp's that have hit a planet.
+testparticles = testparticles[(testparticles['e']<1)]  # Get rid of all tp's with eccentricities of greater than 1 - they're leaving the solar system
+
+Jupiter      = alldata[(alldata['type[tp/pl]'] == 'pl') & (alldata["particle no."]  == 2)]
+Jupiter = Jupiter[(Jupiter['a']!="***************")] 
+Jupiter['a'] = Jupiter.a.astype(float)
+Saturn       = alldata[(alldata['type[tp/pl]'] == 'pl') & (alldata["particle no."]  == 3)]
+Saturn = Saturn[(Saturn['a']!="***************")] 
+Saturn['a'] = Saturn.a.astype(float)
+Uranus       = alldata[(alldata['type[tp/pl]'] == 'pl') & (alldata["particle no."]  == 4)]
+Uranus = Uranus[(Uranus['a']!="***************")] 
+Uranus['a'] = Uranus.a.astype(float)
+Neptune      = alldata[(alldata['type[tp/pl]'] == 'pl') & (alldata["particle no."]  == 5)]
+Neptune = Neptune[(Neptune['a']!="***************")] 
+Neptune['a'] = Neptune.a.astype(float)
+Pluto        = alldata[(alldata['type[tp/pl]'] == 'pl') & (alldata["particle no."]  == 6)]
+Pluto = Pluto[(Pluto['a']!="***************")] 
+Pluto['a'] = Pluto.a.astype(float)
+Planet9      = alldata[(alldata['type[tp/pl]'] == 'pl') & (alldata["particle no."]  == 7)]
+Planet9 = Planet9[(Planet9['a']!="***************")] 
+Planet9['a'] = Planet9.a.astype(float)
+
+
+#This makes the output a nice size to look at, otherwise the legend gets wonky
+fig = plt.figure(figsize=(10,7))
+
+ax = fig.add_subplot()
+
+
+# Plot the test particles
+ax.scatter(testparticles['time[yr]'], testparticles['a']*(1-testparticles['e']), marker='.', s=.1, color='black', label="TPs")
+#Sometimes you want them to be blacker, other times less black. Tweak the s parameter (s for size) somewhere between 2 and 0.01
+
+
+# Plot the planets   Perihelion = a*(1-e)  (order in the legend is the order here)
+ax.scatter(Pluto['time[yr]'],   Pluto['a']*(1-Pluto['e']),     marker='.', s=.1, color='rebeccapurple', label="Pluto")
+ax.scatter(Neptune['time[yr]'], Neptune['a']*(1-Neptune['e']), marker='.', s=.1, color='aqua', label="Neptune")
+ax.scatter(Uranus['time[yr]'],  Uranus['a']*(1-Uranus['e']),   marker='.', s=.1, color='b', label="Uranus")
+ax.scatter(Saturn['time[yr]'],  Saturn['a']*(1-Saturn['e']),   marker='.', s=.1, color='chartreuse', label="Saturn")
+ax.scatter(Jupiter['time[yr]'], Jupiter['a']*(1-Jupiter['e']), marker='.', s=.1, color='r', label="Jupiter")
+ax.scatter(Planet9['time[yr]'], Planet9['a']*(1-Planet9['e']), marker='.', s=1, color='magenta', label="Planet 9")
+
+
+#NOTE BENE must set ylim AFTER the plotting data, or otherwise ylim max will default to 1.  [Traps for the unwary]
+plt.ylim(bottom=-5) #have the bottom of y axis a bit lower than 0 so we can see the terminated test particles.
+#limit the top of the graph - we're not too interested in TPs that don't come close to the inner solar system.  
+#YLimit and XLimit are arguments from the command line.
+if YLimit != 0:  plt.ylim(-1, YLimit)
+if XLimit != 0:  plt.xlim(0,  XLimit)
+ 
+
+# Give it a title
+ax.set_title('Periastron vs Time', pad=30, fontdict=fontTitle)
+plt.suptitle(x=0.5, y=0.88,t=sup_title, fontdict=fontSubTitle, ha="center")
+
+
+
+# Label the axes
+ax.set_xlabel('Time in years')
+ax.set_ylabel('Perihelion in AU')
+
+# Because we can't move the legend all the way outside the plot, we'll have to shrink the ax plot
+#fig.subplots_adjust(right=0.9) This code is just not as good as ax.set_position which we use below.
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.95, box.height * 0.95])
+fig.legend(loc="center right", frameon=False, scatterpoints=100)
+
+# Save the figure
+fig.savefig(save_filename)
+plt.show()
