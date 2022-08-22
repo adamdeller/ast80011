@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+#-------------------------------------------------------------------------------
+# Name:        daisyChain.py
+# Purpose:     Grabs the final positions of particles and planets from a run 
+#              of the SD module and sets up the necessary input files to 
+#              continue the simulation where it left off. Enables you to run
+#              longer simulations.
+#
+# Created:     2021 by Adam Deller
+#
+#              This program is free software: you can redistribute it and/or modify it under
+#              the terms of the GNU General Public License as published by the Free Software
+#              Foundation, either version 3 of the License, or (at your option) any later
+#              version.
+#-------------------------------------------------------------------------------
 import pandas as pd
 import argparse, os
 import json, math
