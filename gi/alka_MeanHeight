@@ -1,0 +1,65 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from scipy.stats import binned_statistic_2d
+
+def calculate_mean_height(x, y, z):
+    """
+    Calculate mean height (z) of stars in each spatial bin
+    """
+    return z  # We'll use binned_statistic_2d to compute the mean
+
+def plot_face_on_mean_height(x, y, z, bins=100):
+    """
+    Create a 2D histogram of mean height in face-on view
+    """
+    # Calculate binned statistics for mean height
+    stat, xedges, yedges, binnumber = binned_statistic_2d(
+        x, y, z, statistic='mean', bins=bins)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    # Create colormap - using a sequential colormap for height values
+    cmap = plt.cm.RdBu_r
+    norm = Normalize(vmin=-1.0, vmax=1.0)  # Adjust these limits based on your data
+    
+    # Plot the 2D histogram
+    im = ax.imshow(stat.T, origin='lower', extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+                   cmap=cmap, norm=norm, aspect='auto')
+    
+    # Add colorbar
+    cbar = fig.colorbar(im, ax=ax, label='Mean height [kpc]')
+    
+    # Set labels and title
+    ax.set_xlabel('X (kpc)')
+    ax.set_ylabel('Y (kpc)')
+    ax.set_title('Face-on view by mean height')
+    
+       
+    # Set equal aspect ratio to maintain circular shape of the galaxy
+    ax.set_aspect('equal')
+    
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    # Read data from CSV file
+    # Assuming the CSV has columns: x,y,z,vx,vy,vz (with headers)
+    try:
+        data = pd.read_csv(r'file.csv')
+    except FileNotFoundError:
+        print("Error: File not found. Please ensure 'milky_way_disk_data.csv' exists.")
+        return
+    
+    # Extract position data
+    x = data['x'].values  # in kpc (modify x if disk is not centred at (0,0))
+    y = data['y'].values  # in kpc (modify y if disk is not centred at (0,0)) 	
+    z = data['z'].values  # in kpc (modify z if disk is not centred at (0,0))
+    
+    # Plot face-on mean height map
+    plot_face_on_mean_height(x, y, z, bins=500)
+
+if __name__ == "__main__":
+    main()
