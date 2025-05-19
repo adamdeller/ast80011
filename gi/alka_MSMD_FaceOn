@@ -1,0 +1,108 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+
+def calculate_mass_density(x, y, masses, grid_size=100, extent=None):
+    """
+    Calculate mass density on a 2D grid.
+    
+    Parameters:
+        x, y (array-like): Particle positions (kpc)
+        masses (array-like): Particle masses (10^11 solar masses)
+        grid_size (int): Number of bins in each dimension
+        extent (tuple): (xmin, xmax, ymin, ymax) for the grid
+        
+    Returns:
+        density (2D array): Mass density in each bin (10^11 solar masses/kpc^2)
+        x_edges, y_edges: Bin edges
+    """
+    if extent is None:
+        xmin, xmax = np.min(x), np.max(x)
+        ymin, ymax = np.min(y), np.max(y)
+    else:
+        xmin, xmax, ymin, ymax = extent
+    
+    # Calculate 2D histogram of masses
+    density, x_edges, y_edges = np.histogram2d(
+        x, y, bins=grid_size, 
+        range=[[xmin, xmax], [ymin, ymax]], 
+        weights=masses
+    )
+    
+    # Calculate area of each bin to get density
+    bin_area = (x_edges[1] - x_edges[0]) * (y_edges[1] - y_edges[0])
+    density /= bin_area
+    
+    return density, x_edges, y_edges
+
+def read_particle_data(disk_file):
+    """
+    Read particle data from a single CSV file.
+    
+    Parameters:
+        disk_file (str): Path to CSV file
+        
+    Returns:
+        x, y, masses: Particle data
+    """
+    # Read the disk data
+    disk = pd.read_csv(r'file.csv')
+    
+    # Extract particle data
+    x = disk['x'].values # in kpc (modify x if disk is not centred at (0,0))
+    y = disk['y'].values # in kpc (modify y if disk is not centred at (0,0))
+    masses = disk['mass'].values
+    
+    return x, y, masses
+
+def plot_mass_density(density, x_edges, y_edges, output_file='mass_density.png'):
+    """
+    Plot the mass density with a logarithmic color scale.
+    
+    Parameters:
+        density (2D array): Mass density values
+        x_edges, y_edges: Bin edges
+        output_file (str): Path to save the plot
+    """
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    # Create meshgrid for plotting
+    x_centers = (x_edges[:-1] + x_edges[1:]) / 2
+    y_centers = (y_edges[:-1] + y_edges[1:]) / 2
+    X, Y = np.meshgrid(x_centers, y_centers)
+    
+    # Plot with logarithmic color scale
+    im = ax.pcolormesh(X, Y, density.T, 
+                      norm=LogNorm(), 
+                      cmap='inferno')
+    
+    # Add colorbar
+    cbar = fig.colorbar(im, ax=ax)
+    cbar.set_label('Stellar Mass Density ($10^{11} M_\odot$/kpc$^2$) [log scale]')
+    
+    # Set labels and title
+    ax.set_xlabel('x (kpc)')
+    ax.set_ylabel('y (kpc)')
+    ax.set_title('Face-On View by Stellar Density')
+    
+    # Save and show plot
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300)
+    plt.show()
+
+# Main script
+if __name__ == "__main__":
+    # File path - replace with your actual file path
+    disk_file = r'your_disk_file.csv'
+    
+    # Read particle data
+    x, y, masses = read_particle_data(disk_file)
+    
+    # Calculate mass density
+    # You may want to adjust the extent based on your data
+    extent = (-30, 30, -30, 30)  # in kpc
+    density, x_edges, y_edges = calculate_mass_density(x, y, masses, grid_size=500, extent=extent)
+    
+    # Plot the results
+    plot_mass_density(density, x_edges, y_edges)
