@@ -1,0 +1,80 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from scipy.stats import binned_statistic_2d
+
+def calculate_radial_velocity(x, y, z, vx, vy, vz):
+    """
+    Calculate the true 3D radial velocity (including z-component).
+    Formula: (x*vx + y*vy + z*vz) / sqrt(x^2 + y^2 + z^2)
+    """
+    # Calculate full 3D radial distance
+    r = np.sqrt(x**2 + y**2 + z**2)
+    
+    # Calculate full radial velocity component (projection of v onto r)
+    vr = (x * vx + y * vy + z * vz) / r
+    
+    # Handle cases where r is very small (to avoid division by zero)
+    vr[np.isnan(vr)] = 0
+    
+    return vr
+
+def plot_face_on_radial_velocity(x, y, vr, bins=100):
+    """
+    Create a 2D histogram of mean radial velocity in face-on view
+    """
+    # Calculate binned statistics
+    stat, xedges, yedges, binnumber = binned_statistic_2d(
+        x, y, vr, statistic='mean', bins=bins)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    # Create colormap - using a diverging colormap to show inward/outward motion
+    cmap = plt.cm.RdBu_r
+    norm = Normalize(vmin=-20, vmax=20)  # Adjust these limits based on your data
+    
+    # Plot the 2D histogram
+    im = ax.imshow(stat.T, origin='lower', extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+                   cmap=cmap, norm=norm, aspect='auto')
+    
+    # Add colorbar
+    cbar = fig.colorbar(im, ax=ax, label='Mean Radial Velocity (km/s)')
+    
+    # Set labels and title
+    ax.set_xlabel('X (kpc)')
+    ax.set_ylabel('Y (kpc)')
+    ax.set_title('Face-on view by radial velocity')
+    
+    # Set equal aspect ratio to maintain circular shape of the galaxy
+    ax.set_aspect('equal')
+    
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    # Read data from CSV file
+    # Assuming the CSV has columns: x,y,z,vx,vy,vz (with headers)
+    try:
+        data = pd.read_csv(r'file.csv')
+    except FileNotFoundError:
+        print("Error: File not found. Please ensure 'file.csv' exists.")
+        return
+    
+    # Extract data
+    x = data['x'].values    # in kpc (modify x if disk is not centred at (0,0))
+    y = data['y'].values    # in kpc (modify y if disk is not centred at (0,0)) 
+    z = data['z'].values    # in kpc (modify z if disk is not centred at (0,0))
+    vx = data['vx'].values  # in km/s (multiply by cosθ (angle of inclination) if the galaxy is inclined for face-on (x-y) view)
+    vy = data['vy'].values  # in km/s 
+    vz = data['vz'].values  # in km/s (multiply by cosθ (angle of inclination) if the galaxy is inclined for face-on (x-y) view)	
+    
+    # Calculate radial velocity (now using full 3D formula)
+    vr = calculate_radial_velocity(x, y, z, vx, vy, vz)
+    
+    # Plot face-on radial velocity map
+    plot_face_on_radial_velocity(x, y, vr, bins=500)
+
+if __name__ == "__main__":
+    main()
