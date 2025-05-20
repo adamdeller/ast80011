@@ -1,0 +1,17 @@
+The file names starting with alka_ include Python codes, made to help study the Large Magellanic Cloud (LMC) and Sagittarius Dwarf Spheroidal Galaxy (Sgr) induced signatures on the Milky Way (MW) disk.
+
+The data used are in CSV format and are downloaded from the GI Simulator. Note that the downloaded CSV data first need cleaning up; after opening the CSV file, first remove all the headers, then at the top of each column, insert the name of the values included in the column. For example, the first column is mass, the second column is x, the third column is y, the fourth column is z, the fifth column is vx, the sixth column is vy, and the seventh column is vz. The x, y, z, are the distances of the disk particles from the galactic center (centred at x = y = z = 0) and vy, vy, vz are the vertical velocities of the disk particles in the x, y, z directions.
+
+Before you type the codes in Python, make sure you have installed all the necessary libraries, such as numpy, pandas, etc.
+
+All the plots are colour-coded to help better analyse the large scale morphology and kinematics of the MW disk particles.
+
+The 'alka_MH_FaceOn' file contains the Python code to calculate and plot the face-on (x-y) Mean Height (z-bar) map of the MW disk particles.
+
+The 'alka_MRV_FaceOn' file contains the Python code to calculate and plot the face-on (x-y) Mean Radial Velocity (Vr) map of the MW disk particles.
+
+The 'alka_MSMD_EdgeOn' file contains the Python code to calculate and plot the edge-on (x-z) Mean Stellar Mass Density map of the MW disk particles.
+
+The 'alka_MSMD_FceOn' file contains the Python code to calculate and plot the face-on (x-y) Mean Stellar Mass Density map of the MW disk particles.
+
+The 'alka_MVV_FaceOn' file contains the Python code to calculate and plot the face-on (x-y) Mean Vertical Velocity map of the MW disk particles.
