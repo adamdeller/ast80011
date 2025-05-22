@@ -33,16 +33,18 @@ So, you ought to type in each command line individually, exactly as they appear 
 Note that this is only a sample containing the first 10 rows 
 out of the original 20,0000 rows, because my MW disk model is made up of 20,000 particles.
 ---------------------------------------------------------------------------------------------
-mass           x(kpc)       y(kpc)        z(kpc)       vx(km/s)      vy(km/s)      vz(km/s)
-4.35E-05    	-1.08E+00	   -1.52E+00	    1.55E-01	   8.26E-01	    -5.18E-01	    -6.04E-02
-4.35E-05	    -5.80E-01	   -9.37E-02	    7.21E-02	   3.69E-01	    -8.99E-01     -5.26E-02
-4.35E-05       1.90E+00   	4.76E-01	    1.30E-01   	-2.54E-01	     9.76E-01	    -1.39E-02
-4.35E-05      -2.75E+00	   -1.89E+00	   -4.07E-02	   4.77E-01    	-8.17E-01     -3.06E-02
-4.35E-05	     3.65E-01	   -3.51E+00	    1.51E-01	   9.26E-01	    -5.06E-02	    -2.21E-02
-4.35E-05      -3.22E+00	   -1.75E+00	   -1.77E-01	   3.06E-01	    -7.46E-01	    -2.92E-02
-4.35E-05	    -9.11E-01	   -1.43E+00	    9.84E-03	   9.87E-01	    -3.98E-01      1.86E-02
-4.35E-05	    -1.05E+00	    2.21E+00	   -1.48E-01	  -8.05E-01	    -3.25E-01	     2.79E-02
-4.35E-05	    -1.48E+00	   -8.65E-01	    5.59E-02	   4.71E-01	    -6.10E-01	    -2.35E-01
+mass	x	y	z	vx	vy	vz
+4.35E-05	-1.08E+00	-1.52E+00	1.55E-01	8.26E-01	-5.18E-01	-6.04E-02
+4.35E-05	-5.80E-01	-9.37E-02	7.21E-02	3.69E-01	-8.99E-01	-5.26E-02
+4.35E-05	1.90E+00	4.76E-01	1.30E-01	-2.54E-01	9.76E-01	-1.39E-02
+4.35E-05	-2.75E+00	-1.89E+00	-4.07E-02	4.77E-01	-8.17E-01	-3.06E-02
+4.35E-05	3.65E-01	-3.51E+00	1.51E-01	9.26E-01	-5.06E-02	-2.21E-02
+4.35E-05	-3.22E+00	-1.75E+00	-1.77E-01	3.06E-01	-7.46E-01	-2.92E-02
+4.35E-05	-9.11E-01	-1.43E+00	9.84E-03	9.87E-01	-3.98E-01	1.86E-02
+4.35E-05	-1.05E+00	2.21E+00	-1.48E-01	-8.05E-01	-3.25E-01	2.79E-02
+4.35E-05	-1.48E+00	-8.65E-01	5.59E-02	4.71E-01	-6.10E-01	-2.35E-01
+4.35E-05	-1.23E+00	-5.08E-01	-1.02E-01	3.35E-01	-8.35E-01	7.87E-02
+
 
 For example, in order to generate the Milky Way disk mean stellar mass density maps, I used the codes included 
 in the alka_MSMD_FaceOn and alka_MSMD_EdgeOn files to generate the face-on (x-y) and edge-on(x-z) maps, respectively. 
