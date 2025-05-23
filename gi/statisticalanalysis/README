@@ -27,7 +27,7 @@ the expected output.
 I have used Python 3.313 (64-bit) to run these codes. 
 
 Note that you should not paste the entire text containing multiple lines into your shell, otherwise it results in the unexpected execution of command. 
-So, you ought to type in each command line individually, exactly as they appear in the codes.
+So, you ought to type in each command line individually, exactly as they appear in the codes (indentation is critical to syntax in Python).
 
 # Sample CSV data of the isolated Milky Way disk:
 Note that this is only a sample containing the first 10 rows 
