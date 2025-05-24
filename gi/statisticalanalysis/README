@@ -57,23 +57,23 @@ a colour-coded map is generated, including a colour-coded side-bar scale showing
 in units of 10^11 M☉ / kpc^2. The face-on map shows the Milky Way disk mean stellar mass density maps on the x-y plane 
 and the edge-on map shows the disk on the x-z plane. 
 
-For calculating and mapping the mean vertical velocity of the disk particles, use the Python code included in the alka_MVV_FaceOn.
+For calculating and mapping the mean vertical velocity of the disk particles on x-y palne, use the Python code included in the alka_MVV_FaceOn.
 Only the values for vertical velocity (vz), x and y from the CSV file are needed. 
 The code first calculates mean of all the vertical velocitis of the disk particles which fall within each pixel of 1 kpc in size (bin),
 then  generates a plot showing a colour-coded mean vertical velocity map of the Milky Way disk particles, including a colour-coded side
 bar scale illustrating the mean vertical velocity of the disk particles in km/sec. The negative values (blue) represent downward motion 
 and the positive values (red) represent upward motion. 
 
-To calculate and generate the MW disk mean radial velocity map, the Python code in the alka_MRV_FaceOn file is used. 
-All the values, namely x, y, z, vx, vy, vz are neededto calculate the radial velocity of the
+To calculate and generate the MW disk mean radial velocity map on x-y plane, the Python code in the alka_MRV_FaceOn file is used. 
+All the values, namely x, y, z, vx, vy, vz from the CSV file are needed to calculate the radial velocity of the
 disk particles, following this equation: (x*vx + y*vy + z*vz) / sqrt(x^2 + y^2 + z^2).
 Mean of all the radial velocitis of the disk particles which fall within each pixel of 1 kpc in size (bin) are calculated.
 A plot showing a colour-coded mean radial velocity map of the Milky Way disk particles, including a colour-coded side bar scale
 illustrating the mean radial velocity of the disk particles in km/sec is generated. The negative values (blue) represent downward motion
 and the positive values (red) represent upward motion. 
 
-For plotting the mean height map of the Milky Way disk particles, the Python code in the alka_MH_FaceOn file is used.
-Only the x, y, and z valued are needed.
+For plotting the mean height map of the Milky Way disk particles on x-y plane, the Python code in the alka_MH_FaceOn file is used.
+Only the x, y, and z valued from the CSV file are needed.
 Mean of all the heights of the disk particles which fall within each pixel of 1 kpc in size (bin) are calculated.
 A plot showing a colour-coded mean height map of the Milky Way disk particles, including a colour-coded side bar scale
 illustrating the mean height of the disk particles in parsec is generated. The negative values (blue) represent downward and the positive
